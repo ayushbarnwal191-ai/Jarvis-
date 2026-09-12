@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jarvis — Personal Chat Assistant</title>
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#10131a;color:#f4f6fb}
+.app{max-width:760px;margin:auto;height:100vh;display:flex;flex-direction:column}
+header{padding:16px 18px;border-bottom:1px solid #2a2f3a;background:#171b24}
+header h1{margin:0;font-size:22px} header p{margin:4px 0 0;color:#9da6b8;font-size:13px}
+#chat{flex:1;overflow:auto;padding:18px 14px}
+.msg{display:flex;margin:10px 0}.user{justify-content:flex-end}.bubble{max-width:82%;padding:11px 14px;border-radius:16px;line-height:1.45;white-space:pre-wrap}
+.bot .bubble{background:#202633}.user .bubble{background:#315efb}
+footer{padding:12px;border-top:1px solid #2a2f3a;background:#171b24}
+.row{display:flex;gap:8px}.row input{flex:1;background:#0e1117;border:1px solid #343b49;color:white;border-radius:12px;padding:12px;font-size:15px}
+button{border:0;border-radius:12px;padding:0 15px;background:#315efb;color:white;font-weight:600}
+.small{margin-top:8px;display:flex;gap:8px}.small button{padding:8px 10px;font-size:12px;background:#29303d}
+</style>
+</head>
+<body>
+<div class="app">
+<header><h1>🤖 Jarvis</h1><p>Tera personal dost + assistant</p></header>
+<main id="chat"></main>
+<footer>
+  <div class="row">
+    <input id="input" placeholder="Jarvis se kuch pooch..." autocomplete="off">
+    <button id="send">Send</button>
+  </div>
+  <div class="small">
+    <button onclick="remember()">🧠 Memory</button>
+    <button onclick="clearChat()">🗑️ Clear Chat</button>
+  </div>
+</footer>
+</div>
+
+<script>
+const chat=document.getElementById('chat'), input=document.getElementById('input');
+let memory=JSON.parse(localStorage.getItem('jarvisMemory')||'[]');
+
+function add(text,who){
+  const wrap=document.createElement('div'); wrap.className='msg '+who;
+  const b=document.createElement('div'); b.className='bubble'; b.textContent=text;
+  wrap.appendChild(b); chat.appendChild(wrap); chat.scrollTop=chat.scrollHeight;
+}
+function bot(text){add(text,'bot')}
+function user(text){add(text,'user')}
+
+function reply(t){
+  const x=t.toLowerCase().trim();
+
+  if(/^(hi|hello|hey|hii|namaste|नमस्ते)/.test(x))
+    return "Oyeee 😎 Jarvis online hai. Bol bhai, kya scene hai?";
+  if(x.includes('kaisa hai')||x.includes('kya haal'))
+    return "Mast bhai 😎 Tu bata, aaj kya bakchodi ya kaam hai?";
+  if(x.includes('jarvis') && (x.includes('best')||x.includes('acha')))
+    return "Obviously 😌 Main toh tera personal Jarvis hoon.";
+  if(x.includes('thank')||x.includes('thanks'))
+    return "Arey koi na bhai ❤️ Dost ke kaam aana toh duty hai.";
+  if(x.includes('joke')||x.includes('joke suna'))
+    return "Teacher: Homework kahan hai?\nStudent: Sir, Google Drive mein.\nTeacher: Link?\nStudent: Password bhool gaya sir 😂";
+  if(x.includes('time'))
+    return "Phone ki current time dekh le bhai 😭 Is basic kaam mein mujhe mat phasa.";
+  if(x.includes('help')||x.includes('madad'))
+    return "Bilkul. Study, coding, phone settings, planning ya normal bakchodi—bol kya chahiye.";
+  if(x.startsWith('remember ')||x.startsWith('yaad rakh '))
+    return "Memory ke liye neeche 🧠 Memory button use kar. Main browser ke local storage mein save kar sakta hoon.";
+  if(x.includes('bye')||x.includes('good night'))
+    return "Chal bhai 😎 milte hain. Dhyan rakh!";
+  return "Hmmm 🤔 ye interesting hai. Abhi main basic offline Jarvis hoon, isliye har sawaal ka smart answer nahi de paunga. Agar tu chahe toh next version mein AI API connect karke mujhe proper ChatGPT-type brain de sakte hain.";
+}
+
+function send(){
+  const t=input.value.trim(); if(!t)return;
+  user(t); input.value='';
+  setTimeout(()=>bot(reply(t)),250);
+}
+document.getElementById('send').onclick=send;
+input.addEventListener('keydown',e=>{if(e.key==='Enter')send()});
+
+function remember(){
+  const v=prompt("Jarvis ko kya yaad rakhna hai?");
+  if(v){
+    memory.push(v); localStorage.setItem('jarvisMemory',JSON.stringify(memory));
+    bot("Yaad rakh liya bhai 🧠\n\n"+v);
+  }
+}
+function clearChat(){chat.innerHTML=''; welcome();}
+function welcome(){
+  bot("Oye bhai 😎 Jarvis ready hai!\n\nAbhi main offline demo mode mein hoon. Tu message bhej aur dekh kya karta hoon.\n\nTip: 🧠 Memory se chhoti preferences save kar sakta hai.");
+}
+welcome();
+</script>
+</body>
+</html>
